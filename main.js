@@ -4,6 +4,9 @@ const ctx = canvas.getContext("2d");
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
+let score = 0;
+const POINTS_PER_KILL = 100;
+
 // Game loop
 function gameLoop() {
   update();
@@ -25,6 +28,29 @@ function update() {
   });
 
   bullets = bullets.filter((b) => b.y + b.height > 0);
+
+  // Check for bullet collision, remove hit bullets
+  bullets.forEach((bullet) => {
+    invaders.forEach((inv) => {
+      if (!inv.alive) return;
+
+      if (isColliding(bullet, inv)) {
+        inv.alive = false;
+        bullet.hit = true;
+        spawnExplosion(inv.x + inv.width / 2, inv.y + inv.height / 2);
+        score += POINTS_PER_KILL;
+      }
+    });
+  });
+
+  bullets = bullets.filter((b) => !b.hit && b.y + b.height > 0);
+
+  particles.forEach((p) => {
+    p.x += p.dx;
+    p.y += p.dy;
+    p.life--;
+  });
+  particles = particles.filter((p) => p.life > 0);
 
   // Move invaders
   let shouldBounce = false;
@@ -62,12 +88,22 @@ function draw() {
     ctx.fillRect(b.x, b.y, b.width, b.height);
   });
 
+  particles.forEach((p) => {
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, 2, 2);
+  });
+
   // Invaders
   invaders.forEach((inv) => {
     if (!inv.alive) return;
     ctx.fillStyle = "#93fcff";
     ctx.fillRect(inv.x, inv.y, inv.width, inv.height);
   });
+
+  // Score
+  ctx.fillStyle = "515154";
+  ctx.font = "20px Arial";
+  ctx.fillText(`Score: ${score}`, 20, 30);
 }
 
 // Player
@@ -95,6 +131,7 @@ let invaderDirection = 1;
 
 // Bullets
 let bullets = [];
+let particles = [];
 let lastFireTime = 0;
 const FIRE_COOLDOWN = 300;
 const BULLET_WIDTH = 4;
@@ -127,6 +164,7 @@ function keyUpHandler(e) {
   }
 }
 
+// Helper functions
 function fireBullet() {
   const now = Date.now();
   if (now - lastFireTime < FIRE_COOLDOWN) return;
@@ -156,6 +194,28 @@ function createInvaders() {
         alive: true
       });
     }
+  }
+}
+
+function isColliding(rect1, rect2) {
+  return (
+    rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.y + rect1.height > rect2.y
+  );
+}
+
+function spawnExplosion(x, y, color="#ff93e4") {
+  for (let i = 0; i < 10; i++) {
+    particles.push({
+      x,
+      y,
+      dx: (Math.random() - 0.5) * 4,
+      dy: (Math.random() - 0.5) * 4,
+      life: 30,
+      color
+    });
   }
 }
 
