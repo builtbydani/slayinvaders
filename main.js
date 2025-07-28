@@ -214,7 +214,7 @@ function draw() {
   ctx.textAlign = "center";
 
   if (gameState === "title") {
-    ctx.fillText("INVADERS", WIDTH / 2, HEIGHT / 2 - 40);
+    ctx.fillText("SLAYINVADERS", WIDTH / 2, HEIGHT / 2 - 40);
     ctx.font = `20px 'Press Start 2P'`;
     ctx.fillText("Press SPACE to begin", WIDTH / 2, HEIGHT / 2 + 10);
   }
