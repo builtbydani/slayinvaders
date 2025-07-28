@@ -9,7 +9,7 @@ let lives = 3;
 let gameState = "title";
 const POINTS_PER_KILL = 100;
 let sparkles = [];
-const NUM_SPARKLES = 100;
+const NUM_SPARKLES = 60;
 
 function createSparkles() {
   sparkles = [];
@@ -138,11 +138,11 @@ function update() {
     if (isColliding(b, player)) {
       lives--;
       b.hit = true;
-      spawnExplosion(player.x + player.width / 2, player.y + player.height / 2, "#ff4249");
+      spawnExplosion(player.x + player.width / 2, player.y, "#ff4249");
     }
   });
 
-  invaderBullets = invaderBullets.filter(b => b.y < HEIGHT);
+  invaderBullets = invaderBullets.filter(b => !b.hit && b.y < HEIGHT);
 
   if (invaders.every(inv => !inv.alive)) {
     gameState = "win";
@@ -178,10 +178,7 @@ function draw() {
     ctx.fillRect(b.x, b.y, b.width, b.height);
   });
 
-  particles.forEach((p) => {
-    ctx.fillStyle = p.color;
-    ctx.fillRect(p.x, p.y, 2, 2);
-  });
+
 
   // Invaders
   invaders.forEach((inv) => {
@@ -194,6 +191,11 @@ function draw() {
   ctx.fillStyle = "#91482f";
   invaderBullets.forEach(b => {
     ctx.fillRect(b.x, b.y, b.width, b.height);
+  });
+
+  particles.forEach((p) => {
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, 2, 2);
   });
 
   // Score
@@ -376,7 +378,7 @@ function spawnExplosion(x, y, color="#ff93e4") {
       y,
       dx: (Math.random() - 0.5) * 4,
       dy: (Math.random() - 0.5) * 4,
-      life: 30,
+      life: 35,
       color
     });
   }
